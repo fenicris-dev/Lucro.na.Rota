@@ -8,6 +8,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Lucro na Rota — Fênix Soluções</title>
 <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
 /* ══════════════════════════════════════
    LUCRO NA ROTA v2.0 — SISTEMA DE TEMAS
@@ -260,7 +263,7 @@ body .hero,body #sidebar,body #topbar,body #trial-banner{transition:background .
 .plan-features li::before{content:'✓';position:absolute;left:0;color:var(--verde);font-weight:700}
 
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;font-family:'Inter',sans-serif;background:var(--fundo);color:var(--texto);overflow-x:hidden}
+html,body{height:100%;height:100dvh;font-family:'Inter',sans-serif;background:var(--fundo);color:var(--texto);overflow-x:hidden}
 /* SPLASH */
 #splash{position:fixed;inset:0;background:var(--azul);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;transition:opacity .6s ease}
 #splash.out{opacity:0;pointer-events:none}
@@ -287,9 +290,9 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--fundo);col
 .blk-input:focus{border-color:var(--dourado)}
 .blk-err{color:#fca5a5;font-size:.78rem;margin-top:.5rem;display:none}
 /* LAYOUT */
-#shell{display:flex;height:100vh;overflow:hidden}
+#shell{display:flex;height:100vh;height:100dvh;overflow:hidden}
 /* SIDEBAR */
-#sidebar{width:228px;min-width:228px;background:var(--azul);display:flex;flex-direction:column;height:100vh;position:fixed;left:0;top:0;z-index:60;transition:transform .25s ease;overflow-y:auto}
+#sidebar{width:228px;min-width:228px;background:var(--azul);display:flex;flex-direction:column;height:100vh;height:100dvh;position:fixed;left:0;top:0;z-index:60;transition:transform .25s ease;overflow-y:auto}
 .sb-head{padding:1.1rem 1.2rem;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px;flex-shrink:0}
 .sb-logo{width:38px;height:38px;border-radius:8px;flex-shrink:0}
 .sb-name{font-family:'Urbanist',sans-serif;font-size:1rem;font-weight:800;color:#fff;line-height:1.1}
@@ -305,7 +308,7 @@ html,body{height:100%;font-family:'Inter',sans-serif;background:var(--fundo);col
 .fb-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px;vertical-align:middle;background:rgba(255,255,255,.3)}
 .fb-dot.on{background:#4ade80}
 /* MAIN */
-#main-wrap{margin-left:228px;flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+#main-wrap{margin-left:228px;flex:1;display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
 /* TOPBAR */
 #topbar{background:var(--azul);padding:.72rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;box-shadow:0 2px 8px rgba(4,18,115,.3)}
 .tb-left{display:flex;align-items:center;gap:.75rem}
@@ -480,7 +483,7 @@ td.hi{color:var(--texto);font-weight:600}
   #mob-tog{display:flex}
   #overlay.show{display:block}
   #bottom-bar{display:block}
-  #content{padding:1rem;padding-bottom:5.5rem}
+  #content{padding:1rem;padding-bottom:calc(6.5rem + env(safe-area-inset-bottom))}
   .two-col{grid-template-columns:1fr}
   .quick-grid{grid-template-columns:repeat(4,1fr)}
   #topbar{padding:.6rem 1rem .6rem 3.2rem}
@@ -636,6 +639,25 @@ body.dark #trial-banner{background:#0a0d1a}
   visibility: hidden !important;
 }
 
+/* AUTH SCREEN */
+#auth-screen{display:none;position:fixed;inset:0;background:var(--azul);z-index:9500;align-items:center;justify-content:center;padding:1.5rem}
+#auth-screen.show{display:flex}
+.auth-box{background:var(--card);border-radius:20px;padding:2rem 1.75rem;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.auth-logo-wrap{text-align:center;margin-bottom:1.5rem}
+.auth-logo{width:64px;height:64px;border-radius:14px;margin-bottom:.6rem}
+.auth-app-name{font-family:'Urbanist',sans-serif;font-size:1.25rem;font-weight:900;color:var(--azul)}
+.auth-slogan{font-size:.72rem;color:var(--texto3);margin-top:2px}
+.auth-tabs{display:flex;gap:3px;background:var(--fundo);border-radius:8px;padding:3px;margin-bottom:1.25rem}
+.auth-tab{flex:1;padding:.45rem;text-align:center;border-radius:6px;font-size:.82rem;font-weight:600;cursor:pointer;color:var(--texto3);transition:all .15s;border:none;background:transparent}
+.auth-tab.active{background:var(--azul);color:#fff}
+.auth-step{display:none}
+.auth-step.active{display:block}
+.auth-err{color:var(--vermelho);font-size:.78rem;margin-top:.6rem;text-align:center;display:none}
+.auth-ok{color:var(--verde);font-size:.78rem;margin-top:.6rem;text-align:center;display:none}
+.auth-forgot{font-size:.75rem;color:var(--azul2);cursor:pointer;text-align:right;margin-top:6px;display:block;background:none;border:none;padding:0;width:100%}
+.auth-forgot:hover{text-decoration:underline}
+.auth-skip{font-size:.75rem;color:var(--texto3);text-align:center;margin-top:1rem;cursor:pointer}
+.auth-skip:hover{color:var(--azul)}
 </style>
 </head>
 <body>
@@ -657,6 +679,46 @@ body.dark #trial-banner{background:#0a0d1a}
   <div style="font-size:.78rem;color:rgba(255,255,255,.4)">Adquira seu código: <a href="https://wa.me/55" target="_blank" style="color:var(--dourado)">WhatsApp Fênix</a></div>
   <div class="blk-err" id="blk-err">Código inválido.</div>
 </div>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo-wrap">
+      <img id="auth-logo" class="auth-logo" src="" alt="Lucro na Rota">
+      <div class="auth-app-name">Lucro na Rota</div>
+      <div class="auth-slogan">Você faz as entregas. Nós mostramos o lucro.</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="auth-tab-login" onclick="authSwitchTab('login')">Entrar</button>
+      <button class="auth-tab" id="auth-tab-cad" onclick="authSwitchTab('cad')">Criar Conta</button>
+    </div>
+
+    <div class="auth-step active" id="auth-step-login">
+      <div class="form-grid" style="grid-template-columns:1fr">
+        <div class="fg"><label class="fl">E-mail</label><input type="email" class="fi" id="auth-login-email" placeholder="seu@email.com" autocomplete="email"></div>
+        <div class="fg"><label class="fl">Senha</label><input type="password" class="fi" id="auth-login-senha" placeholder="Sua senha" autocomplete="current-password" onkeydown="if(event.key==='Enter')authLogin()"></div>
+      </div>
+      <button class="auth-forgot" onclick="authForgotPassword()">Esqueci minha senha</button>
+      <div class="sec-act" style="margin-top:1rem"><button class="btn btn-p" style="width:100%;justify-content:center" onclick="authLogin()">Entrar</button></div>
+      <div class="auth-err" id="auth-login-err"></div>
+      <div class="auth-ok" id="auth-login-ok"></div>
+    </div>
+
+    <div class="auth-step" id="auth-step-cad">
+      <div class="form-grid" style="grid-template-columns:1fr">
+        <div class="fg"><label class="fl">Nome</label><input type="text" class="fi" id="auth-cad-nome" placeholder="Seu nome"></div>
+        <div class="fg"><label class="fl">E-mail</label><input type="email" class="fi" id="auth-cad-email" placeholder="seu@email.com" autocomplete="email"></div>
+        <div class="fg"><label class="fl">Senha (mínimo 6 caracteres)</label><input type="password" class="fi" id="auth-cad-senha" placeholder="Crie uma senha" autocomplete="new-password"></div>
+      </div>
+      <div class="sec-act" style="margin-top:1rem"><button class="btn btn-p" style="width:100%;justify-content:center" onclick="authCadastrar()">Criar Conta</button></div>
+      <div class="auth-err" id="auth-cad-err"></div>
+      <div class="auth-ok" id="auth-cad-ok"></div>
+    </div>
+
+    <button class="auth-skip" onclick="authSkip()">Continuar sem cadastro (modo local)</button>
+  </div>
+</div>
+
 <!-- TRIAL BANNER -->
 <div id="trial-banner">
   <span id="trial-txt"></span>
@@ -742,8 +804,8 @@ Vamos configurar tudo em 2 minutos.</div>
     <div class="sb-item" data-p="semana" onclick="go('semana')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Meta por Dia</div>
     <div class="sb-item" data-p="pdf" onclick="go('pdf')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15h6M9 11h6"/></svg>Exportar PDF</div>
     <div class="sb-sec">Admin</div>
-    <div class="sb-item" data-p="admin" onclick="go('admin')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Admin (Códigos)</div>
-    <div class="sb-item" data-p="adminweb" onclick="go('adminweb')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Painel Admin Web</div>
+    <div class="sb-item" data-p="admin" onclick="go('admin')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>Admin (Códigos) <span id="sb-admin-badge" style="display:none;margin-left:auto;background:var(--dourado);color:#fff;font-size:.58rem;font-weight:700;padding:1px 6px;border-radius:10px">✓ ON</span></div>
+    <div class="sb-item" data-p="adminweb" onclick="go('adminweb')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>Painel Admin Web <span id="sb-adminweb-badge" style="display:none;margin-left:auto;background:var(--dourado);color:#fff;font-size:.58rem;font-weight:700;padding:1px 6px;border-radius:10px">✓ ON</span></div>
     
     <div class="sb-item" data-p="perfil" onclick="go('perfil')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Meu Perfil</div>
     <div class="sb-item" data-p="planos" onclick="go('planos')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Planos &amp; Assinatura</div>
@@ -1345,6 +1407,18 @@ Vamos configurar tudo em 2 minutos.</div>
       <div class="card-title">☁️ Status Firebase</div>
       <div id="aw-fb"></div>
     </div>
+    <!-- Trocar senha admin -->
+    <div class="card">
+      <div class="card-title">🔑 Alterar Senha do Administrador</div>
+      <div class="alert al-w" style="font-size:.78rem;margin-bottom:.75rem">⚠️ A nova senha é salva no LocalStorage deste dispositivo. Para todos os dispositivos, edite o arquivo HTML.</div>
+      <div class="form-grid">
+        <div class="fg"><label class="fl">Senha atual</label><input type="password" class="fi" id="pwd-atual" placeholder="Senha atual"></div>
+        <div class="fg"><label class="fl">Nova senha</label><input type="password" class="fi" id="pwd-nova" placeholder="Nova senha (mín. 6 caracteres)"></div>
+        <div class="fg"><label class="fl">Confirmar nova senha</label><input type="password" class="fi" id="pwd-confirma" placeholder="Repita a nova senha"></div>
+      </div>
+      <div class="sec-act"><button class="btn btn-p" onclick="trocarSenhaAdmin()">🔑 Alterar Senha</button></div>
+      <div id="pwd-msg" style="font-size:.78rem;margin-top:.5rem;display:none"></div>
+    </div>
   </div>
 </div>
 
@@ -1512,25 +1586,34 @@ var FB_CFG={
 var ADMIN_PWD="fenix@admin2025";
 var fbApp=null,fbDB=null,fbAuth=null,fbUID=null,fbOnline=false,fbUser=null;
 
+var fbReady=false;
+var authMode="login";
+
 function initFirebase(){
   try{
     if(typeof firebase==="undefined"){setFBStatus(false);return;}
     fbApp=firebase.apps&&firebase.apps.length?firebase.apps[0]:firebase.initializeApp(FB_CFG);
     fbDB=firebase.firestore();
     fbAuth=firebase.auth();
+    fbReady=true;
     fbAuth.onAuthStateChanged(function(user){
-      if(user){
+      if(user&&!user.isAnonymous){
         fbUID=user.uid;fbUser=user;fbOnline=true;
         setFBStatus(true);
+        hideAuthScreen();
         carregarPerfil();
         syncFromCloud();
         setInterval(syncToCloud,300000);
+      }else if(user&&user.isAnonymous){
+        fbUID=user.uid;fbUser=user;fbOnline=true;
+        setFBStatus(true);
+        syncFromCloud();
+        setInterval(syncToCloud,300000);
       }else{
-        // Auth anônima como fallback
-        fbAuth.signInAnonymously().then(function(r){
-          fbUID=r.user.uid;fbOnline=true;setFBStatus(true);
-          syncFromCloud();setInterval(syncToCloud,300000);
-        }).catch(function(){setFBStatus(false);});
+        setFBStatus(false);
+        if(!ld("auth_skip_local",false)){
+          showAuthScreen();
+        }
       }
     });
   }catch(e){setFBStatus(false);}
@@ -1541,6 +1624,109 @@ function setFBStatus(ok){
   if(dot)dot.className="fb-dot"+(ok?" on":"");
   if(txt)txt.textContent=ok?"Firebase ativo":"Modo local";
 }
+
+// ── AUTH SCREEN ──
+function showAuthScreen(){
+  var el=document.getElementById("auth-screen");
+  if(el)el.classList.add("show");
+}
+function hideAuthScreen(){
+  var el=document.getElementById("auth-screen");
+  if(el)el.classList.remove("show");
+}
+function authSwitchTab(tab){
+  authMode=tab;
+  document.getElementById("auth-tab-login").className="auth-tab"+(tab==="login"?" active":"");
+  document.getElementById("auth-tab-cad").className="auth-tab"+(tab==="cad"?" active":"");
+  document.getElementById("auth-step-login").className="auth-step"+(tab==="login"?" active":"");
+  document.getElementById("auth-step-cad").className="auth-step"+(tab==="cad"?" active":"");
+}
+function authShowErr(id,msg){
+  var el=document.getElementById(id);
+  if(el){el.textContent=msg;el.style.display="block";}
+}
+function authShowOk(id,msg){
+  var el=document.getElementById(id);
+  if(el){el.textContent=msg;el.style.display="block";}
+}
+function authClearMsgs(){
+  ["auth-login-err","auth-login-ok","auth-cad-err","auth-cad-ok"].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.style.display="none";el.textContent="";}
+  });
+}
+function authFirebaseErrorMsg(code){
+  var msgs={
+    "auth/invalid-email":"E-mail inválido.",
+    "auth/user-not-found":"E-mail não cadastrado.",
+    "auth/wrong-password":"Senha incorreta.",
+    "auth/invalid-credential":"E-mail ou senha incorretos.",
+    "auth/email-already-in-use":"Este e-mail já está cadastrado. Tente entrar.",
+    "auth/weak-password":"Senha muito fraca. Use ao menos 6 caracteres.",
+    "auth/network-request-failed":"Sem conexão com a internet.",
+    "auth/too-many-requests":"Muitas tentativas. Aguarde um momento."
+  };
+  return msgs[code]||"Erro ao processar. Tente novamente.";
+}
+function authLogin(){
+  authClearMsgs();
+  if(!fbReady||!fbAuth){authShowErr("auth-login-err","Firebase não carregado. Verifique sua conexão.");return;}
+  var email=document.getElementById("auth-login-email").value.trim();
+  var senha=document.getElementById("auth-login-senha").value;
+  if(!email||!senha){authShowErr("auth-login-err","Preencha e-mail e senha.");return;}
+  fbAuth.signInWithEmailAndPassword(email,senha).then(function(){
+    authShowOk("auth-login-ok","Login realizado! Carregando...");
+  }).catch(function(err){
+    authShowErr("auth-login-err",authFirebaseErrorMsg(err.code));
+  });
+}
+function authCadastrar(){
+  authClearMsgs();
+  if(!fbReady||!fbAuth){authShowErr("auth-cad-err","Firebase não carregado. Verifique sua conexão.");return;}
+  var nome=document.getElementById("auth-cad-nome").value.trim();
+  var email=document.getElementById("auth-cad-email").value.trim();
+  var senha=document.getElementById("auth-cad-senha").value;
+  if(!nome||!email||!senha){authShowErr("auth-cad-err","Preencha todos os campos.");return;}
+  if(senha.length<6){authShowErr("auth-cad-err","Senha deve ter ao menos 6 caracteres.");return;}
+  fbAuth.createUserWithEmailAndPassword(email,senha).then(function(cred){
+    var perfil=ld("perfil",{});
+    perfil.nome=nome;
+    sv("perfil",perfil);
+    authShowOk("auth-cad-ok","Conta criada com sucesso! Bem-vindo(a) ao Lucro na Rota.");
+    setTimeout(function(){syncToCloud();},1000);
+  }).catch(function(err){
+    authShowErr("auth-cad-err",authFirebaseErrorMsg(err.code));
+  });
+}
+function authForgotPassword(){
+  var email=document.getElementById("auth-login-email").value.trim();
+  if(!email){authShowErr("auth-login-err","Digite seu e-mail acima primeiro.");return;}
+  if(!fbReady||!fbAuth){authShowErr("auth-login-err","Firebase não carregado.");return;}
+  fbAuth.sendPasswordResetEmail(email).then(function(){
+    authShowOk("auth-login-ok","E-mail de redefinição enviado! Verifique sua caixa de entrada.");
+  }).catch(function(err){
+    authShowErr("auth-login-err",authFirebaseErrorMsg(err.code));
+  });
+}
+function authSkip(){
+  sv("auth_skip_local",true);
+  hideAuthScreen();
+  if(fbReady&&fbAuth){
+    fbAuth.signInAnonymously().then(function(r){
+      fbUID=r.user.uid;fbOnline=true;setFBStatus(true);
+      syncFromCloud();setInterval(syncToCloud,300000);
+    }).catch(function(){setFBStatus(false);});
+  }
+}
+function fazerLogout(){
+  if(!confirm("Sair da conta?"))return;
+  sv("auth_skip_local",false);
+  if(fbAuth)fbAuth.signOut().then(function(){
+    showAuthScreen();
+    toast("Você saiu da conta.","i");
+  }).catch(function(){});
+}
+
 function userRef(col,docId){
   return fbDB.collection("users").doc(fbUID).collection(col).doc(docId||"data");
 }
@@ -1716,11 +1902,6 @@ function renderPerfilStats(){
     '<div class="mc"><div class="mc-lbl">Receita total</div><div class="mc-val pos">'+fmt(totalBruto)+'</div></div>'+
     '<div class="mc"><div class="mc-lbl">Abastecimentos</div><div class="mc-val">'+abs.length+'</div></div>'+
     '<div class="mc"><div class="mc-lbl">Manutenções</div><div class="mc-val">'+mn.length+'</div></div>';
-}
-function fazerLogout(){
-  if(!confirm("Sair da conta? Seus dados ficam salvos localmente."))return;
-  if(fbAuth)fbAuth.signOut().catch(function(){});
-  toast("Até logo! 👋","i");
 }
 
 // ── PLANOS ──
@@ -2448,7 +2629,17 @@ function gerarPDF(){
 
 // ── ADMIN CÓDIGOS ──
 var adminLogado=false;
-function adminLogin(){var pwd=document.getElementById("admin-pwd").value;if(pwd===ADMIN_PWD){adminLogado=true;document.getElementById("admin-lock").style.display="none";document.getElementById("admin-panel").style.display="block";renderAdminCodigos();}else{var e=document.getElementById("admin-err");if(e)e.style.display="block";}}
+function getAdminPwd(){return localStorage.getItem("fnx_admin_pwd")||ADMIN_PWD;}
+function adminLogin(){
+  var pwd=document.getElementById("admin-pwd").value;
+  if(pwd===getAdminPwd()){
+    adminLogado=true;
+    document.getElementById("admin-lock").style.display="none";
+    document.getElementById("admin-panel").style.display="block";
+    renderAdminCodigos();
+    var b=document.getElementById("sb-admin-badge");if(b)b.style.display="inline";
+  }else{var e=document.getElementById("admin-err");if(e)e.style.display="block";}
+}
 function gerarCodigo(){var chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";var seg=function(){var s="";for(var i=0;i<4;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s;};var code="FRL-"+seg()+"-"+seg();var cliente=document.getElementById("adm-cliente").value;var dias=document.getElementById("adm-dias").value||365;var lics=ld("admin_licencas",[]);lics.unshift({code:code,nome:cliente,dias:dias,criado:new Date().toLocaleString("pt-BR"),usado:false,ativo:true});sv("admin_licencas",lics);if(fbOnline&&fbDB)fbDB.collection("codigos").doc(code).set({ativo:true,cliente:cliente,dias_validade:parseInt(dias),criado_em:new Date().toISOString(),usado_por:null}).catch(function(){});document.getElementById("adm-code-result").style.display="block";document.getElementById("adm-code-display").textContent=code;document.getElementById("adm-code-info").textContent=(fbOnline?"✅ Firebase":"⚠️ Local")+" · "+(cliente||"—")+" · "+dias+" dias";renderAdminCodigos();toast("✅ Código: "+code,"s");}
 function copiarCodigo(){navigator.clipboard.writeText(document.getElementById("adm-code-display").textContent).then(function(){toast("Copiado!","s");}).catch(function(){});}
 function renderAdminCodigos(){var cs=ld("admin_licencas",[]);var w=document.getElementById("adm-codigos-list");if(!w)return;if(!cs.length){w.innerHTML='<div class="tsm tmuted">Nenhum código gerado.</div>';return;}w.innerHTML='<table><thead><tr><th>Código</th><th>Cliente</th><th>Criado</th><th>Dias</th><th></th></tr></thead><tbody>'+cs.map(function(c){return'<tr><td><span class="code-display" style="font-size:.78rem;padding:3px 8px" onclick="navigator.clipboard.writeText(\''+c.code+'\').then(()=>toast(\'Copiado!\',\'s\'))">'+c.code+'</span></td><td class="hi">'+(c.nome||"—")+'</td><td>'+c.criado+'</td><td>'+c.dias+'d</td><td><button class="btn btn-d btn-xs" onclick="delCodigo(\''+c.code+'\')">✕</button></td></tr>';}).join("")+'</tbody></table>';}
@@ -2456,7 +2647,32 @@ function delCodigo(code){if(!confirm("Excluir?"))return;sv("admin_licencas",ld("
 
 // ── ADMIN WEB ──
 var awLogado=false,_awCode="";
-function awLogin(){var pwd=document.getElementById("aw-pwd").value;if(pwd===ADMIN_PWD){awLogado=true;document.getElementById("aw-lock").style.display="none";document.getElementById("aw-panel").style.display="block";awRenderStats();awRenderLicencas();awRenderReceita();awRenderFB();}else{var e=document.getElementById("aw-err");if(e)e.style.display="block";}}
+function awLogin(){
+  var pwd=document.getElementById("aw-pwd").value;
+  if(pwd===getAdminPwd()){
+    awLogado=true;
+    document.getElementById("aw-lock").style.display="none";
+    document.getElementById("aw-panel").style.display="block";
+    awRenderStats();awRenderLicencas();awRenderReceita();awRenderFB();
+    var b=document.getElementById("sb-adminweb-badge");if(b)b.style.display="inline";
+  }else{var e=document.getElementById("aw-err");if(e)e.style.display="block";}
+}
+function trocarSenhaAdmin(){
+  var atual=document.getElementById("pwd-atual").value;
+  var nova=document.getElementById("pwd-nova").value;
+  var confirma=document.getElementById("pwd-confirma").value;
+  var msg=document.getElementById("pwd-msg");
+  function showMsg(txt,cor){msg.textContent=txt;msg.style.color=cor;msg.style.display="block";}
+  if(atual!==getAdminPwd()){showMsg("❌ Senha atual incorreta.","var(--vermelho)");return;}
+  if(nova.length<6){showMsg("❌ Nova senha deve ter ao menos 6 caracteres.","var(--vermelho)");return;}
+  if(nova!==confirma){showMsg("❌ Confirmação não confere.","var(--vermelho)");return;}
+  localStorage.setItem("fnx_admin_pwd",nova);
+  showMsg("✅ Senha alterada com sucesso! Use a nova senha no próximo login.","var(--verde)");
+  document.getElementById("pwd-atual").value="";
+  document.getElementById("pwd-nova").value="";
+  document.getElementById("pwd-confirma").value="";
+  toast("✅ Senha admin alterada!","s");
+}
 function awGerarCodigo(){var chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";var seg=function(){var s="";for(var i=0;i<4;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s;};_awCode="FRL-"+seg()+"-"+seg();var nome=document.getElementById("aw-cli-nome").value.trim();var tel=document.getElementById("aw-cli-tel").value.trim();var plano=document.getElementById("aw-plano").value;var valor=parseFloat(document.getElementById("aw-valor").value)||0;var pM={mensal:30,trimestral:90,semestral:180,anual:365,vitalicio:9999};var dias=pM[plano]||30;var expira=dias===9999?null:new Date(Date.now()+dias*86400000).toLocaleDateString("pt-BR");var lic={code:_awCode,nome:nome,tel:tel,plano:plano,dias:dias,valor:valor,expira:expira,criado:new Date().toLocaleString("pt-BR"),usado:false,ativo:true};var lics=ld("admin_licencas",[]);lics.unshift(lic);sv("admin_licencas",lics);if(fbOnline&&fbDB)fbDB.collection("codigos").doc(_awCode).set({ativo:true,cliente:nome,telefone:tel,plano:plano,dias_validade:dias,valor:valor,criado_em:new Date().toISOString(),expira_em:expira,usado_por:null}).catch(function(){});document.getElementById("aw-code-result").style.display="block";document.getElementById("aw-code-disp").textContent=_awCode;document.getElementById("aw-code-info").textContent=(fbOnline?"✅ Firebase":"⚠️ Local")+" · "+nome+" · "+plano+(expira?" · Exp: "+expira:" · Vitalício")+(valor?" · "+fmt(valor):"");awRenderStats();awRenderLicencas();awRenderReceita();toast("✅ Licença gerada!","s");}
 function awCopiar(){navigator.clipboard.writeText(_awCode).then(function(){toast("Copiado!","s");}).catch(function(){});}
 function awEnviarWhatsApp(){var tel=document.getElementById("aw-cli-tel").value.replace(/\D/g,"");var nome=document.getElementById("aw-cli-nome").value||"motorista";var msg=encodeURIComponent("🔥 *Lucro na Rota*\n\n\"Você faz as entregas. Nós mostramos o lucro.\"\n\nOlá, "+nome+"! Seu código de ativação:\n\n*"+_awCode+"*\n\nPara ativar:\n1. Abra o Lucro na Rota\n2. Vá em Metas & Config. → Ativação de Licença\n3. Digite o código acima\n\nQualquer dúvida, fale comigo! 🚀");window.open("https://wa.me/55"+tel+"?text="+msg,"_blank");}
@@ -2506,7 +2722,7 @@ function populateSels(){
 
 function init(){
   // Ícones
-  [document.getElementById("spl-img"),document.getElementById("blk-img"),document.getElementById("sb-logo"),document.getElementById("tb-logo")].forEach(function(el){if(el)el.src=ICON;});
+  [document.getElementById("spl-img"),document.getElementById("blk-img"),document.getElementById("sb-logo"),document.getElementById("tb-logo"),document.getElementById("auth-logo")].forEach(function(el){if(el)el.src=ICON;});
   // Datas
   var td=new Date().toISOString().split("T")[0];
   ["r-data","ab-data","mn-data"].forEach(function(id){var el=document.getElementById(id);if(el)el.value=td;});
